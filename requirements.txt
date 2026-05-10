@@ -5,3 +5,4 @@ chromadb==0.4.24
 protobuf==3.20.3
 pysqlite3-binary
 google-generativeai
+numpy<2.0.0
