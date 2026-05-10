@@ -3,6 +3,6 @@ sentence-transformers
 pandas
 chromadb
 pysqlite3-binary
-google-generativeai
+google-generativeai>=0.7.2
 numpy<2.0.0
 torchvision
