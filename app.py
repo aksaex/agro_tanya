@@ -13,249 +13,286 @@ import os
 # 1. KONFIGURASI HALAMAN
 st.set_page_config(page_title="AGRO-TANYA", page_icon="🌾", layout="centered")
 
-# --- CSS REVISI FINAL ---
 st.markdown("""
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Serif+Display&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Lora:wght@400;600&family=DM+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap');
 
+    /* ── GLOBAL ── */
     html, body, [class*="css"] {
         font-family: 'DM Sans', sans-serif !important;
-        background-color: #F5F5F0 !important;
+        background-color: #FAF7F0 !important;
         color: #1A2E1A !important;
     }
-
     #MainMenu, footer, header { visibility: hidden; }
-
     .block-container {
-        padding: 2.5rem 1rem 3rem !important;
+        padding: 0 !important;
         max-width: 680px !important;
         margin: 0 auto !important;
     }
 
-    /* ── HERO ── */
+    /* ── HERO — dark green banner ── */
     .hero-container {
+        background: #1A3D2B;
+        padding: 2.8rem 2rem 2.5rem;
         text-align: center;
+        border-radius: 0 0 28px 28px;
         margin-bottom: 2rem;
-        padding: 2.5rem 1.5rem 2rem;
-        background: #ffffff;
-        border-radius: 20px;
-        border: 1px solid #D6E8D6;
     }
     .hero-badge {
         display: inline-block;
-        background: #D6E8D6;
-        color: #1B4D2E;
-        font-size: 0.7rem;
+        background: rgba(255,255,255,0.12);
+        color: #C8E6C9;
+        font-size: 0.68rem;
         font-weight: 600;
-        letter-spacing: 1.2px;
+        letter-spacing: 1.4px;
         text-transform: uppercase;
-        padding: 0.35rem 0.9rem;
+        padding: 0.3rem 0.85rem;
         border-radius: 50px;
-        margin-bottom: 1.1rem;
+        border: 1px solid rgba(200, 230, 201, 0.3);
+        margin-bottom: 1.2rem;
     }
     .hero-title {
-        font-family: 'DM Serif Display', serif !important;
-        font-size: 2.6rem !important;
-        font-weight: 400 !important;
-        color: #1A2E1A !important;
-        margin: 0 0 0.6rem !important;
+        font-family: 'Lora', serif !important;
+        font-size: 2.8rem !important;
+        font-weight: 600 !important;
+        color: #F0FAF0 !important;
+        margin: 0 0 0.7rem !important;
         letter-spacing: -0.5px;
-        line-height: 1.1;
+        line-height: 1.05;
     }
-    .hero-title span { color: #2D7A3A; }
+    .hero-title span { color: #81C784; }
     .hero-subtitle {
-        color: #5A6E5A;
-        font-size: 0.9rem;
-        line-height: 1.6;
-        margin: 0;
-        max-width: 440px;
-        margin-inline: auto;
+        color: #A5C8A5;
+        font-size: 0.88rem;
+        line-height: 1.65;
+        margin: 0 auto;
+        max-width: 400px;
     }
 
-    /* ── FORM ── */
+    /* ── CONTENT AREA ── */
+    .content-wrap {
+        padding: 0 1.25rem 2.5rem;
+    }
+
+    /* ── FORM CARD ── */
     div[data-testid="stForm"] {
-        background: #ffffff;
-        padding: 1.25rem 1.25rem 1rem;
-        border-radius: 20px;
-        border: 1px solid #D6E8D6;
+        background: #FFFFFF;
+        padding: 1.1rem 1.25rem 1rem !important;
+        border-radius: 18px;
+        border: 1px solid #D8E8D0;
         margin-bottom: 1.5rem;
+        box-shadow: 0 2px 16px rgba(26, 61, 43, 0.06);
     }
-    .stTextInput label {
-        font-weight: 500 !important;
-        color: #2D4A2D !important;
-        font-size: 0.82rem !important;
-        letter-spacing: 0.3px;
-    }
+
+    /* ── INPUT ── */
     .stTextInput > div > div > input {
-        background-color: #F5F5F0 !important;
-        border: 1px solid #C4D9C4 !important;
+        background-color: #F5F8F2 !important;
+        border: 1.5px solid #C8DCC0 !important;
         border-radius: 12px !important;
         padding: 0.75rem 1rem !important;
-        font-size: 0.95rem !important;
+        font-size: 0.93rem !important;
         color: #1A2E1A !important;
-        transition: border-color 0.15s ease;
+        font-family: 'DM Sans', sans-serif !important;
+        height: 48px !important;
+        transition: border-color 0.15s ease, box-shadow 0.15s ease;
     }
     .stTextInput > div > div > input:focus {
         border-color: #2D7A3A !important;
-        box-shadow: 0 0 0 3px rgba(45, 122, 58, 0.12) !important;
+        box-shadow: 0 0 0 3px rgba(45, 122, 58, 0.14) !important;
         background-color: #ffffff !important;
+        outline: none !important;
     }
     .stTextInput > div > div > input::placeholder {
-        color: #9AAA9A !important;
+        color: #9AAA8E !important;
+        font-style: italic;
     }
+    .stTextInput label { display: none !important; }
 
-    /* ── TOMBOL KIRIM — IKON SAJA ── */
+    /* ── BUTTON — kirim, ikon panah, di samping input ── */
+    /*
+       Trik: kolom terakhir di dalam form diatur ke lebar fixed ~56px,
+       tombol dibuat kotak 48×48 dan di-push ke bawah supaya sejajar input.
+    */
+    div[data-testid="stForm"] div[data-testid="column"]:last-child {
+        flex: 0 0 56px !important;
+        min-width: 56px !important;
+        max-width: 56px !important;
+        padding-left: 6px !important;
+        padding-right: 0 !important;
+    }
+    div[data-testid="stForm"] div[data-testid="column"]:first-child {
+        flex: 1 1 auto !important;
+        padding-right: 0 !important;
+    }
     .stButton > button {
-        background-color: #2D7A3A !important;
-        color: white !important;
+        background-color: #1A3D2B !important;
+        color: #F0FAF0 !important;
         border: none !important;
         border-radius: 12px !important;
         width: 48px !important;
         height: 48px !important;
+        min-height: 48px !important;
         padding: 0 !important;
-        font-size: 1.3rem !important;
+        font-size: 1.25rem !important;
         line-height: 1 !important;
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
-        margin-top: 0.4rem !important;
+        margin-top: 0 !important;
         transition: background-color 0.15s ease, transform 0.1s ease;
-        float: right;
     }
     .stButton > button:hover {
-        background-color: #1B5E27 !important;
-        transform: translateY(-1px);
+        background-color: #2D7A3A !important;
+        transform: scale(1.05);
     }
     .stButton > button:active {
-        transform: scale(0.96);
+        transform: scale(0.95) !important;
     }
+    /* Hilangkan teks, tampilkan hanya SVG arrow */
+    .stButton > button p {
+        font-size: 0 !important;
+        line-height: 0 !important;
+        margin: 0 !important;
+    }
+    .stButton > button::after {
+        content: "";
+        display: block;
+        width: 20px;
+        height: 20px;
+        background-color: #F0FAF0;
+        -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cline x1='22' y1='2' x2='11' y2='13'/%3E%3Cpolygon points='22 2 15 22 11 13 2 9 22 2'/%3E%3C/svg%3E");
+        mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cline x1='22' y1='2' x2='11' y2='13'/%3E%3Cpolygon points='22 2 15 22 11 13 2 9 22 2'/%3E%3C/svg%3E");
+        -webkit-mask-size: contain;
+        mask-size: contain;
+        -webkit-mask-repeat: no-repeat;
+        mask-repeat: no-repeat;
+        -webkit-mask-position: center;
+        mask-position: center;
+    }
+
+    /* ── SPINNER ── */
+    .stSpinner > div > div { border-top-color: #2D7A3A !important; }
 
     /* ── RESPONS AI ── */
     .ai-response {
         background: #ffffff;
-        border-radius: 16px;
+        border-radius: 18px;
         padding: 1.4rem 1.5rem;
-        border: 1px solid #D6E8D6;
-        border-left: 4px solid #2D7A3A;
+        border: 1px solid #D8E8D0;
+        border-left: 4px solid #1A3D2B;
         margin-bottom: 1.5rem;
+        box-shadow: 0 2px 16px rgba(26, 61, 43, 0.05);
     }
     .ai-header {
         display: flex;
         align-items: center;
-        gap: 0.65rem;
-        margin-bottom: 1rem;
+        gap: 0.7rem;
+        margin-bottom: 0.9rem;
         padding-bottom: 0.9rem;
-        border-bottom: 1px solid #EBF3EB;
+        border-bottom: 1px solid #EEF5EE;
     }
     .ai-avatar {
-        background: #D6E8D6;
-        width: 32px;
-        height: 32px;
+        background: #1A3D2B;
+        width: 34px;
+        height: 34px;
         display: flex;
         align-items: center;
         justify-content: center;
-        border-radius: 8px;
-        font-size: 1rem;
+        border-radius: 10px;
         flex-shrink: 0;
+        color: #C8E6C9;
+        font-size: 0.95rem;
+        font-weight: 600;
+        letter-spacing: 0;
+        font-family: 'Lora', serif;
     }
     .ai-name {
+        font-family: 'Lora', serif;
         font-weight: 600;
-        color: #1A2E1A;
-        font-size: 0.88rem;
+        color: #1A3D2B;
+        font-size: 0.9rem;
         margin: 0;
     }
     .ai-content {
-        color: #2D4A2D;
-        line-height: 1.75;
-        font-size: 0.93rem;
+        color: #2A3E2A;
+        line-height: 1.78;
+        font-size: 0.92rem;
     }
 
     /* ── REFERENSI ── */
+    .ref-section { margin-top: 0.25rem; }
     .ref-header {
-        font-size: 0.75rem;
+        font-size: 0.72rem;
         font-weight: 600;
-        color: #5A6E5A;
+        color: #6A8A6A;
         text-transform: uppercase;
-        letter-spacing: 1px;
-        margin-bottom: 0.75rem;
+        letter-spacing: 1.1px;
+        margin-bottom: 0.7rem;
+        padding-left: 2px;
     }
     .ref-card {
-        background: #ffffff;
+        background: #F5F9F2;
         border-radius: 12px;
         padding: 1rem 1.1rem;
-        margin-bottom: 0.75rem;
-        border: 1px solid #D6E8D6;
+        margin-bottom: 0.65rem;
+        border: 1px solid #D8E8D0;
     }
     .ref-title {
-        font-size: 0.82rem;
+        font-size: 0.81rem;
         font-weight: 600;
-        color: #1B4D2E;
-        margin-bottom: 0.4rem;
+        color: #1A3D2B;
+        margin-bottom: 0.45rem;
         display: flex;
         align-items: flex-start;
-        gap: 0.4rem;
+        gap: 0.5rem;
+        line-height: 1.4;
     }
     .ref-num {
-        background: #D6E8D6;
-        color: #1B4D2E;
-        font-size: 0.68rem;
+        background: #1A3D2B;
+        color: #C8E6C9;
+        font-size: 0.65rem;
         font-weight: 700;
-        padding: 1px 6px;
+        padding: 2px 7px;
         border-radius: 4px;
         flex-shrink: 0;
         margin-top: 1px;
     }
     .ref-text {
-        font-size: 0.82rem;
-        line-height: 1.6;
-        color: #4A5E4A;
+        font-size: 0.81rem;
+        line-height: 1.62;
+        color: #4A6A4A;
     }
 
     /* ── FOOTER ── */
     .footer {
         text-align: center;
         margin-top: 2.5rem;
-        padding-top: 1.25rem;
-        border-top: 1px solid #D6E8D6;
+        padding: 1.25rem 1rem 0;
+        border-top: 1px solid #D8E8D0;
         color: #8A9E8A;
-        font-size: 0.78rem;
+        font-size: 0.76rem;
         line-height: 1.6;
     }
-    .footer strong { color: #5A6E5A; }
+    .footer strong { color: #4A6A4A; }
 
-    /* ── SPINNER ── */
-    .stSpinner > div > div { border-top-color: #2D7A3A !important; }
-
-    /* ── MOBILE RESPONSIVE ── */
+    /* ── MOBILE ── */
     @media (max-width: 600px) {
-        .block-container {
-            padding: 1.25rem 0.75rem 2rem !important;
-        }
         .hero-container {
-            padding: 1.75rem 1rem 1.5rem;
-            border-radius: 16px;
+            padding: 2.2rem 1.25rem 2rem;
+            border-radius: 0 0 20px 20px;
         }
-        .hero-title {
-            font-size: 2rem !important;
-        }
-        .hero-subtitle {
-            font-size: 0.85rem;
-        }
+        .hero-title { font-size: 2.1rem !important; }
+        .hero-subtitle { font-size: 0.84rem; }
+        .content-wrap { padding: 0 0.85rem 2rem; }
         div[data-testid="stForm"] {
-            padding: 1rem !important;
-            border-radius: 16px;
+            padding: 0.9rem 0.9rem 0.8rem !important;
+            border-radius: 14px;
         }
         .ai-response {
             padding: 1.1rem 1rem;
             border-radius: 14px;
         }
-        .ref-card {
-            border-radius: 10px;
-        }
-        .stButton > button {
-            width: 44px !important;
-            height: 44px !important;
-        }
+        .ref-card { border-radius: 10px; }
     }
     </style>
 """, unsafe_allow_html=True)
@@ -290,7 +327,7 @@ def load_system():
     target_collection = "agro_tanya_padi_jagung"
 
     if target_collection not in available_collections:
-        st.error(f"Koleksi tidak ditemukan. Koleksi tersedia: {available_collections}")
+        st.error(f"Koleksi tidak ditemukan. Tersedia: {available_collections}")
         st.stop()
 
     collection = client.get_collection(name=target_collection)
@@ -299,7 +336,7 @@ def load_system():
 
 model, collection = load_system()
 
-# 4. UI
+# 4. UI — HERO
 st.markdown("""
 <div class="hero-container">
     <div class="hero-badge">36.000+ Jurnal Akademis</div>
@@ -308,16 +345,19 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
+# 5. FORM — input + tombol sejajar dalam satu baris
 with st.form(key='chat_form'):
-    query = st.text_input(
-        "Pertanyaan",
-        placeholder="Contoh: Daun jagung menguning dan bule, apa solusinya?",
-        label_visibility="collapsed",
-    )
-    # Tombol ikon kirim (panah kanan)
-    submit_button = st.form_submit_button(label="➤")
+    col_input, col_btn = st.columns([9, 1])
+    with col_input:
+        query = st.text_input(
+            "q",
+            placeholder="Tanyakan masalah tanaman padi atau jagung kamu...",
+            label_visibility="collapsed",
+        )
+    with col_btn:
+        submit_button = st.form_submit_button(label="kirim")
 
-# --- LOGIKA PENCARIAN ---
+# 6. LOGIKA PENCARIAN
 if submit_button and query:
     with st.spinner("Memindai jurnal..."):
         query_vector = model.encode(query).tolist()
@@ -357,7 +397,7 @@ if submit_button and query:
             st.markdown(f"""
             <div class="ai-response">
                 <div class="ai-header">
-                    <div class="ai-avatar">🌾</div>
+                    <div class="ai-avatar">AT</div>
                     <p class="ai-name">Penyuluh Pintar</p>
                 </div>
                 <div class="ai-content">{jawaban_ai}</div>
@@ -367,7 +407,7 @@ if submit_button and query:
         except Exception as e:
             st.error(f"Gagal memanggil Gemini: {e}")
 
-    st.markdown('<div class="ref-header">Sumber Jurnal</div>', unsafe_allow_html=True)
+    st.markdown('<div class="ref-section"><div class="ref-header">Sumber Jurnal</div>', unsafe_allow_html=True)
 
     for i in range(len(results['documents'][0])):
         doc = results['documents'][0][i]
@@ -384,10 +424,11 @@ if submit_button and query:
         </div>
         """, unsafe_allow_html=True)
 
+    st.markdown('</div>', unsafe_allow_html=True)
+
 # FOOTER
 st.markdown("""
 <div class="footer">
-    <strong>Mata Kuliah Information Retrieval</strong><br>
-    ChromaDB &middot; Google Gemini Flash
+    <strong>Mata Kuliah Information Retrieval</strong> &middot; ChromaDB &middot; Google Gemini Flash
 </div>
 """, unsafe_allow_html=True)
