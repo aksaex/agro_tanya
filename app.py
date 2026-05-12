@@ -1,7 +1,13 @@
+# --- HACK WAJIB UNTUK STREAMLIT CLOUD ---
+__import__('pysqlite3')
+import sys
+sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
+# ----------------------------------------
+
 import streamlit as st
 import streamlit.components.v1 as components
 
-# 1. Konfigurasi Halaman
+# 1. Konfigurasi Halaman Wajib (Harus paling atas)
 st.set_page_config(page_title="AGRO-TANYA | Home", page_icon="🌾", layout="wide", initial_sidebar_state="collapsed")
 
 # 2. Menyembunyikan Header/Footer bawaan Streamlit agar full screen
@@ -48,9 +54,9 @@ html_code = """
             </p>
             <div class="mt-10 max-w-sm mx-auto sm:max-w-none sm:flex sm:justify-center">
                 <div class="space-y-4 sm:space-y-0 sm:mx-auto sm:inline-grid sm:grid-cols-2 sm:gap-5">
-                    <div class="flex items-center justify-center px-8 py-3 border border-transparent text-base font-semibold rounded-full text-green-700 bg-white shadow-lg">
-                        👈 Klik Menu "Penyuluh" di Panel Kiri Layar
-                    </div>
+                    <a href="Penyuluh" target="_top" class="flex items-center justify-center px-8 py-3 border border-transparent text-base font-semibold rounded-full text-green-700 bg-white shadow-lg hover:bg-green-50 transition-all transform hover:-translate-y-1">
+                        🤖 Masuk ke Ruang Tanya-Jawab AI
+                    </a>
                 </div>
             </div>
         </div>

@@ -11,8 +11,7 @@ import google.generativeai as genai
 import os
 
 # 1. KONFIGURASI HALAMAN (Wajib di baris pertama)
-st.set_page_config(page_title="AGRO-TANYA", page_icon="🌾", layout="centered")
-
+st.set_page_config(page_title="Penyuluh Pintar | AGRO-TANYA", page_icon="💬", layout="centered")
 # --- CSS MODERN STARTUP EDITION ---
 st.markdown("""
     <style>
