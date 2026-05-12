@@ -51,16 +51,42 @@ except Exception as e:
     st.error("⚠️ Kunci API Gemini belum dipasang di pengaturan rahasia (Secrets) Streamlit!")
     st.stop()
 
-# 3. LOAD AI PUSTAKAWAN & DATABASE FISIK
-@st.cache_resource(show_spinner="📥 Membuka rak database 36.000 Jurnal Kementan...")
+# 3. LOAD AI PUSTAKAWAN & DATABASE FISIK (DENGAN DEBUGGER)
+@st.cache_resource(show_spinner="📥 Memeriksa integritas database 36.000 jurnal...")
 def load_system():
+    # Load Model Embeddings
     model = SentenceTransformer('paraphrase-multilingual-MiniLM-L12-v2')
-    # LANGSUNG BACA FOLDER DATABASE DARI GITHUB
-    client = chromadb.PersistentClient(path="./agro_tanya_db")
-    collection = client.get_collection(name="agro_tanya_padi_jagung")
-    return model, collection
+    
+    db_path = "./agro_tanya_db"
+    sqlite_file = os.path.join(db_path, "chroma.sqlite3")
+    
+    # --- DEBUGGER AREA ---
+    if os.path.exists(sqlite_file):
+        file_size = os.path.getsize(sqlite_file)
+        # Jika ukuran file sangat kecil (sekitar 130 bytes), berarti itu cuma LFS Pointer
+        if file_size < 1000:
+            st.error(f"⚠️ DATABASE RUSAK: Streamlit hanya membaca Pointer LFS ({file_size} bytes).")
+            st.info("💡 Solusi: Pastikan 'Hard Reset' (Delete App di Streamlit Cloud lalu Create New App) sudah dilakukan agar Streamlit mendownload file asli 217MB.")
+            st.stop()
+    else:
+        st.error(f"❌ DATABASE TIDAK DITEMUKAN: File {sqlite_file} tidak ada!")
+        st.stop()
+    # ----------------------
 
-model, collection = load_system()
+    client = chromadb.PersistentClient(path=db_path)
+    
+    # Cek daftar koleksi yang tersedia di dalam database
+    available_collections = [c.name for c in client.list_collections()]
+    target_collection = "agro_tanya_padi_jagung"
+    
+    if target_collection not in available_collections:
+        st.error(f"❌ KOLEKSI TIDAK DITEMUKAN!")
+        st.write(f"Koleksi yang ada di database kamu: {available_collections}")
+        st.write("Pastikan nama koleksi di Colab sama dengan di app.py.")
+        st.stop()
+        
+    collection = client.get_collection(name=target_collection)
+    return model, collection
 
 # 4. UI TAMPILAN
 st.markdown("""
