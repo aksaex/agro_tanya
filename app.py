@@ -8,6 +8,7 @@ import streamlit as st
 import chromadb
 from sentence_transformers import SentenceTransformer
 import google.generativeai as genai
+import os
 
 # 1. KONFIGURASI HALAMAN
 st.set_page_config(page_title="AGRO-TANYA", page_icon="🌱", layout="centered")
@@ -51,47 +52,47 @@ except Exception as e:
     st.error("⚠️ Kunci API Gemini belum dipasang di pengaturan rahasia (Secrets) Streamlit!")
     st.stop()
 
-# 3. LOAD AI PUSTAKAWAN & DATABASE FISIK (DENGAN DEBUGGER)
-@st.cache_resource(show_spinner="📥 Memeriksa integritas database 36.000 jurnal...")
+# 3. LOAD AI PUSTAKAWAN & DATABASE FISIK
+@st.cache_resource(show_spinner="📥 Membuka rak database 36.000 Jurnal Kementan...")
 def load_system():
-    # Load Model Embeddings
-    model = SentenceTransformer('paraphrase-multilingual-MiniLM-L12-v2')
-    
     db_path = "./agro_tanya_db"
     sqlite_file = os.path.join(db_path, "chroma.sqlite3")
     
-    # --- DEBUGGER AREA ---
+    # --- PENGECEKAN GIT LFS ---
     if os.path.exists(sqlite_file):
         file_size = os.path.getsize(sqlite_file)
-        # Jika ukuran file sangat kecil (sekitar 130 bytes), berarti itu cuma LFS Pointer
         if file_size < 1000:
             st.error(f"⚠️ DATABASE RUSAK: Streamlit hanya membaca Pointer LFS ({file_size} bytes).")
-            st.info("💡 Solusi: Pastikan 'Hard Reset' (Delete App di Streamlit Cloud lalu Create New App) sudah dilakukan agar Streamlit mendownload file asli 217MB.")
+            st.info("💡 Solusi: Harus 'Delete App' di Streamlit Cloud lalu 'Create New App' agar mendownload file 217MB yang asli.")
             st.stop()
     else:
-        st.error(f"❌ DATABASE TIDAK DITEMUKAN: File {sqlite_file} tidak ada!")
+        st.error(f"❌ DATABASE TIDAK DITEMUKAN: File {sqlite_file} tidak ada! Pastikan folder di-upload ke GitHub.")
         st.stop()
-    # ----------------------
+    # --------------------------
 
+    # Inisialisasi Database
     client = chromadb.PersistentClient(path=db_path)
-    
-    # Cek daftar koleksi yang tersedia di dalam database
     available_collections = [c.name for c in client.list_collections()]
     target_collection = "agro_tanya_padi_jagung"
     
     if target_collection not in available_collections:
-        st.error(f"❌ KOLEKSI TIDAK DITEMUKAN!")
-        st.write(f"Koleksi yang ada di database kamu: {available_collections}")
-        st.write("Pastikan nama koleksi di Colab sama dengan di app.py.")
+        st.error(f"❌ KOLEKSI TIDAK DITEMUKAN! Yang ada di databasemu: {available_collections}")
         st.stop()
         
     collection = client.get_collection(name=target_collection)
+    
+    # Inisialisasi Model Otak Vektor
+    model = SentenceTransformer('paraphrase-multilingual-MiniLM-L12-v2')
+    
     return model, collection
+
+# BARIS PENTING YANG TERHAPUS: MEMANGGIL FUNGSI LOAD SYSTEM
+model, collection = load_system()
 
 # 4. UI TAMPILAN
 st.markdown("""
 <div class="agro-hero">
-    <div class="hero-badge">🌿 36.000+ Paragraf Jurnal & Pedoman</div>
+    <div class="hero-badge">🌿 36.000+ Paragraf Jurnal Akademis</div>
     <div class="hero-title">AGRO<span>·</span>TANYA</div>
     <p class="hero-sub">Konsultasi hama, penyakit, dan perawatan<br>Padi & Jagung didukung AI — gratis untuk petani.</p>
 </div>
@@ -123,13 +124,13 @@ if submit_button and query:
 
         INSTRUKSI SANGAT KETAT (WAJIB DIIKUTI):
         1. Jika pertanyaan petani HANYA BERUPA SAPAAN (contoh: "hai", "halo", "assalamualaikum", "pagi"), maka BALAS SAPAAN TERSEBUT SAJA dengan ramah menggunakan logat Sulawesi Selatan (tabe', iye', ki', pale'). JANGAN berikan penjelasan pertanian apapun.
-        2. Jika pertanyaan petani BUKAN sapaan (melainkan masalah pertanian), kamu WAJIB menjawab HANYA BERDASARKAN "REFERENSI KEMENTAN" di bawah ini.
-        3. JIKA REFERENSI KEMENTAN TIDAK SESUAI dengan pertanyaan petani, JANGAN MENGARANG JAWABAN! Katakan saja: "Maaf ki' pale', informasi tentang hal itu belum ada di buku referensi jurnal saya saat ini."
+        2. Jika pertanyaan petani BUKAN sapaan (melainkan masalah pertanian), kamu WAJIB menjawab HANYA BERDASARKAN "REFERENSI JURNAL" di bawah ini.
+        3. JIKA REFERENSI JURNAL TIDAK SESUAI dengan pertanyaan petani, JANGAN MENGARANG JAWABAN! Katakan saja: "Maaf ki' pale', informasi tentang hal itu belum ada di buku referensi jurnal saya saat ini."
         4. Selalu gunakan Bahasa Indonesia yang dicampur logat lokal Sulawesi Selatan yang natural dan sopan.
 
         Pertanyaan Petani: "{query}"
         
-        REFERENSI KEMENTAN:
+        REFERENSI JURNAL:
         {referensi_teks}
         """
 
@@ -147,7 +148,7 @@ if submit_button and query:
     for i in range(len(results['documents'][0])):
         doc = results['documents'][0][i]
         meta = results['metadatas'][0][i]
-        judul = meta.get('Judul', 'Sumber Jurnal/Kementan')
+        judul = meta.get('Judul', 'Sumber Jurnal')
         st.markdown(f"""
         <div class="ref-card">
             <div class="ref-number">{i+1}</div>
