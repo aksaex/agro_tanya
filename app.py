@@ -10,275 +10,233 @@ from sentence_transformers import SentenceTransformer
 import google.generativeai as genai
 import os
 
-# 1. KONFIGURASI HALAMAN (Wajib di baris pertama)
-st.set_page_config(page_title="AGRO-TANYA", page_icon="🌾", layout="centered")
+# 1. KONFIGURASI HALAMAN
+st.set_page_config(page_title="AGRO-TANYA | AI Agronomy Assistant", page_icon="🌱", layout="centered")
 
-# --- CSS MODERN STARTUP EDITION ---
+# --- CSS ENTERPRISE GRADE (RESPONSIF & MINIMALIS) ---
 st.markdown("""
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
     
-    /* Global Reset & Typography */
+    /* Global Reset */
     html, body, [class*="css"] {
         font-family: 'Inter', sans-serif !important;
-        background-color: #F8F9FA !important;
-        color: #1F2937 !important;
+        background-color: #FFFFFF !important;
+        color: #111827 !important;
     }
     
     #MainMenu, footer, header { visibility: hidden; }
+    
+    /* Layout Responsif */
     .block-container {
         padding: 2rem 1rem !important;
-        max-width: 720px !important;
+        max-width: 768px !important;
         margin: 0 auto !important;
     }
 
-    /* Hero Section Minimalist */
-    .hero-container {
+    /* Minimalist Header */
+    .header-container {
         text-align: center;
-        margin-bottom: 2.5rem;
-        padding: 2rem;
-        background: white;
-        border-radius: 24px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
-        border: 1px solid #F3F4F6;
+        margin-bottom: 2rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid #E5E7EB;
     }
-    .hero-badge {
-        display: inline-block;
-        background: #DEF7EC;
-        color: #046C4E;
-        font-family: 'Plus Jakarta Sans', sans-serif;
-        font-size: 0.75rem;
+    .header-title {
+        font-size: 1.75rem;
         font-weight: 700;
-        letter-spacing: 1px;
-        text-transform: uppercase;
-        padding: 0.4rem 1rem;
-        border-radius: 50px;
-        margin-bottom: 1rem;
+        color: #064E3B; /* Hijau Tua */
+        letter-spacing: -0.025em;
+        margin: 0 0 0.5rem 0;
     }
-    .hero-title {
-        font-family: 'Plus Jakarta Sans', sans-serif !important;
-        font-size: 2.5rem !important;
-        font-weight: 800 !important;
-        color: #111827 !important;
-        margin: 0 0 0.5rem !important;
-        letter-spacing: -1px;
-    }
-    .hero-title span { color: #10B981; }
-    .hero-subtitle {
+    .header-desc {
+        font-size: 0.9rem;
         color: #6B7280;
-        font-size: 0.95rem;
-        line-height: 1.5;
         margin: 0;
+        line-height: 1.5;
     }
 
-    /* Chat Input Form */
+    /* Chat Input Form (Merger Textbox & Tombol) */
     div[data-testid="stForm"] {
-        background: white;
-        padding: 1.5rem;
-        border-radius: 20px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
-        border: 1px solid #E5E7EB;
-        margin-bottom: 2rem;
-    }
-    .stTextInput label {
-        font-family: 'Plus Jakarta Sans', sans-serif;
-        font-weight: 600 !important;
-        color: #374151 !important;
-        font-size: 0.85rem !important;
-        margin-bottom: 0.5rem !important;
+        border: none;
+        background: transparent;
+        padding: 0;
+        box-shadow: none;
     }
     .stTextInput > div > div > input {
-        background-color: #F9FAFB !important;
+        border-radius: 24px !important;
+        padding: 14px 20px !important;
         border: 1px solid #D1D5DB !important;
-        border-radius: 12px !important;
-        padding: 0.8rem 1rem !important;
-        font-size: 1rem !important;
+        font-size: 15px !important;
+        background-color: #F9FAFB !important;
         transition: all 0.2s ease;
+        padding-right: 50px !important; /* Ruang untuk tombol panah */
     }
     .stTextInput > div > div > input:focus {
-        border-color: #10B981 !important;
-        box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1) !important;
-        background-color: white !important;
+        border-color: #059669 !important;
+        box-shadow: 0 0 0 4px rgba(5, 150, 105, 0.1) !important;
+        background-color: #FFFFFF !important;
     }
     
-    /* Button Minimalist */
+    /* Tombol Kirim Minimalis (Mirip ChatGPT) */
     .stButton>button {
-        background-color: #10B981;
-        color: white;
-        border-radius: 12px;
-        padding: 0.6rem 2rem;
-        font-family: 'Plus Jakarta Sans', sans-serif;
-        font-weight: 600;
-        font-size: 0.95rem;
-        width: 100%;
-        border: none;
-        transition: all 0.2s ease;
-        margin-top: 0.5rem;
-    }
-    .stButton>button:hover {
         background-color: #059669;
-        transform: translateY(-1px);
-        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
-    }
-
-    /* AI Response Card */
-    .ai-response {
-        background: white;
-        border-radius: 20px;
-        padding: 1.5rem;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
-        border: 1px solid #E5E7EB;
-        margin-bottom: 2rem;
-        border-left: 5px solid #10B981;
-    }
-    .ai-header {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        margin-bottom: 1rem;
-        padding-bottom: 1rem;
-        border-bottom: 1px solid #F3F4F6;
-    }
-    .ai-avatar {
-        background: #DEF7EC;
-        width: 35px;
-        height: 35px;
+        color: white;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        padding: 0;
         display: flex;
         align-items: center;
         justify-content: center;
-        border-radius: 10px;
-        font-size: 1.2rem;
-    }
-    .ai-name {
-        font-family: 'Plus Jakarta Sans', sans-serif;
-        font-weight: 700;
-        color: #111827;
-        font-size: 0.95rem;
-        margin: 0;
-    }
-    .ai-content {
-        color: #374151;
-        line-height: 1.7;
-        font-size: 0.95rem;
-    }
-
-    /* Reference Section */
-    .ref-header {
-        font-family: 'Plus Jakarta Sans', sans-serif;
-        font-size: 0.85rem;
-        font-weight: 700;
-        color: #6B7280;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        margin-bottom: 1rem;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-    .ref-card {
-        background: white;
-        border-radius: 16px;
-        padding: 1.2rem;
-        margin-bottom: 1rem;
-        border: 1px solid #E5E7EB;
+        border: none;
+        position: absolute;
+        right: 5px;
+        top: 2px; /* Disesuaikan agar sejajar dengan textbox */
         transition: all 0.2s ease;
     }
-    .ref-card:hover {
-        border-color: #D1D5DB;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+    .stButton>button:hover {
+        background-color: #047857;
+        transform: scale(1.05);
     }
-    .ref-title {
-        font-family: 'Plus Jakarta Sans', sans-serif;
-        font-size: 0.85rem;
-        font-weight: 700;
-        color: #046C4E;
-        margin-bottom: 0.5rem;
-        display: flex;
-        align-items: center;
-        gap: 0.4rem;
-    }
-    .ref-text {
-        font-size: 0.85rem;
-        line-height: 1.6;
-        color: #4B5563;
+    /* Ganti teks tombol menjadi icon panah pakai CSS */
+    .stButton>button p { display: none; }
+    .stButton>button::after {
+        content: "↑";
+        font-size: 20px;
+        font-weight: 600;
     }
 
-    /* Footer */
-    .footer {
-        text-align: center;
-        margin-top: 3rem;
-        padding-top: 1.5rem;
-        border-top: 1px solid #E5E7EB;
-        color: #9CA3AF;
-        font-size: 0.8rem;
+    /* AI Response Card */
+    .response-wrapper {
+        background-color: #F3F4F6;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        border: 1px solid #E5E7EB;
     }
-    .footer strong { color: #6B7280; }
+    .response-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 12px;
+    }
+    .response-icon {
+        background-color: #059669;
+        color: white;
+        width: 28px;
+        height: 28px;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 14px;
+    }
+    .response-title {
+        font-weight: 600;
+        font-size: 14px;
+        color: #374151;
+        margin: 0;
+    }
+    .response-body {
+        font-size: 15px;
+        color: #1F2937;
+        line-height: 1.6;
+    }
+
+    /* Source Reference section */
+    .ref-label {
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: #9CA3AF;
+        margin-bottom: 12px;
+        display: block;
+    }
+    .ref-item {
+        background-color: #FFFFFF;
+        border: 1px solid #E5E7EB;
+        border-radius: 8px;
+        padding: 12px 16px;
+        margin-bottom: 8px;
+    }
+    .ref-title {
+        font-size: 13px;
+        font-weight: 600;
+        color: #064E3B;
+        margin-bottom: 4px;
+    }
+    .ref-snippet {
+        font-size: 13px;
+        color: #6B7280;
+        line-height: 1.5;
+    }
     
-    /* Streamlit Spinner */
-    .stSpinner > div > div { border-top-color: #10B981 !important; }
+    /* Penyesuaian khusus layar Android/Mobile */
+    @media (max-width: 640px) {
+        .block-container { padding: 1.5rem 1rem !important; }
+        .header-title { font-size: 1.5rem; }
+        .stTextInput > div > div > input { font-size: 16px !important; } /* Mencegah auto-zoom di iOS */
+    }
     </style>
 """, unsafe_allow_html=True)
 
-# 2. SETUP GEMINI API (REKOMENDASI: gemini-1.5-flash)
+# 2. SETUP API
 try:
     GEMINI_API_KEY = st.secrets["GEMINI_API_KEY"]
     genai.configure(api_key=GEMINI_API_KEY)
-    gemini_model = genai.GenerativeModel('gemini-2.5-flash')
+    gemini_model = genai.GenerativeModel('gemini-1.5-flash')
 except Exception as e:
-    st.error("⚠️ Kunci API Gemini belum dipasang di pengaturan rahasia (Secrets) Streamlit!")
+    st.error("Sistem membutuhkan API Key untuk beroperasi.")
     st.stop()
 
-# 3. LOAD AI PUSTAKAWAN & DATABASE FISIK
-@st.cache_resource(show_spinner="📥 Menginisialisasi 36.000+ Jurnal Pertanian...")
+# 3. INISIALISASI DATABASE VEKTOR
+@st.cache_resource(show_spinner="Menghubungkan ke basis data...")
 def load_system():
     db_path = "./agro_tanya_db"
     sqlite_file = os.path.join(db_path, "chroma.sqlite3")
     
-    # Pengecekan Git LFS
     if os.path.exists(sqlite_file):
-        file_size = os.path.getsize(sqlite_file)
-        if file_size < 1000:
-            st.error(f"⚠️ DATABASE RUSAK: Streamlit hanya membaca Pointer LFS ({file_size} bytes).")
-            st.info("💡 Solusi: Harus 'Delete App' di Streamlit Cloud lalu 'Create New App' agar mendownload file 217MB yang asli.")
+        if os.path.getsize(sqlite_file) < 1000:
+            st.error("Integritas data terganggu. Silakan hubungi administrator.")
             st.stop()
     else:
-        st.error(f"❌ DATABASE TIDAK DITEMUKAN: File {sqlite_file} tidak ada! Pastikan folder di-upload ke GitHub.")
+        st.error("Basis data tidak ditemukan.")
         st.stop()
 
     client = chromadb.PersistentClient(path=db_path)
-    available_collections = [c.name for c in client.list_collections()]
-    target_collection = "agro_tanya_padi_jagung"
-    
-    if target_collection not in available_collections:
-        st.error(f"❌ KOLEKSI TIDAK DITEMUKAN! Yang ada di databasemu: {available_collections}")
-        st.stop()
-        
-    collection = client.get_collection(name=target_collection)
+    collection = client.get_collection(name="agro_tanya_padi_jagung")
     model = SentenceTransformer('paraphrase-multilingual-MiniLM-L12-v2')
     
     return model, collection
 
 model, collection = load_system()
 
-# 4. UI TAMPILAN
+# 4. ANTARMUKA PENGGUNA (UI)
 st.markdown("""
-<div class="hero-container">
-    <div class="hero-badge">Database 36.000+ Jurnal Akademis</div>
-    <h1 class="hero-title">AGRO<span>·</span>TANYA</h1>
-    <p class="hero-subtitle">Asisten penyuluh virtual untuk analisis hama, penyakit, dan budidaya Padi & Jagung di wilayah Sulawesi Selatan.</p>
+<div class="header-container">
+    <h1 class="header-title">AGRO-TANYA</h1>
+    <p class="header-desc">Asisten Agronomi Pintar. Didukung oleh 36.000 literatur akademis.</p>
 </div>
 """, unsafe_allow_html=True)
 
-with st.form(key='chat_form'):
-    query = st.text_input(
-        "Tanyakan Masalah Pertanian Anda",
-        placeholder="Contoh: Daun jagung saya bule dan menguning, apa solusinya pale'?",
-    )
-    submit_button = st.form_submit_button(label="Analisis dengan AI 🚀")
+# Membungkus Input dan Tombol agar sejajar (Teknik CSS Hack)
+with st.container():
+    st.markdown('<div style="position: relative;">', unsafe_allow_html=True)
+    with st.form(key='chat_form', clear_on_submit=False):
+        # Kolom ini kita akali dengan CSS absolut agar tombol masuk ke dalam baris teks
+        query = st.text_input(
+            "label_hidden",
+            label_visibility="collapsed",
+            placeholder="Tanyakan masalah pertanian Anda...",
+        )
+        submit_button = st.form_submit_button(label="Kirim")
+    st.markdown('</div>', unsafe_allow_html=True)
 
-# --- LOGIKA PENCARIAN ---
+# 5. LOGIKA SISTEM RAG
 if submit_button and query:
-    with st.spinner("🔍 Memindai puluhan ribu dokumen jurnal..."):
+    with st.spinner("Menganalisis literatur..."):
         query_vector = model.encode(query).tolist()
         results = collection.query(query_embeddings=[query_vector], n_results=3)
 
@@ -286,69 +244,48 @@ if submit_button and query:
         for i in range(len(results['documents'][0])):
             doc = results['documents'][0][i]
             meta = results['metadatas'][0][i]
-            referensi_teks += f"- [{meta.get('Judul', 'Sumber Jurnal')}] {doc}\n\n"
+            referensi_teks += f"- [{meta.get('Judul', 'Sumber Literatur')}] {doc}\n\n"
 
-    with st.spinner("🤖 Menyusun kesimpulan akademis..."):
+    with st.spinner("Memproses respon..."):
         prompt = f"""
-        Anda adalah "Penyuluh Pintar", seorang ahli agronomi dan penyuluh pertanian lapangan asli Sulawesi Selatan (fokus Parepare & Sidrap) yang sangat berpengalaman, praktis, dan ramah. Anda melayani petani secara langsung melalui platform AGRO-TANYA.
+        Anda adalah asisten pakar agronomi lapangan (fokus wilayah Parepare, Sulawesi Selatan).
+        
+        INSTRUKSI KETAT:
+        1. Jawab pertanyaan pengguna HANYA berdasarkan [REFERENSI JURNAL] di bawah ini.
+        2. Jika informasi TIDAK ADA di referensi, sampaikan dengan sopan bahwa data spesifik belum tersedia di korpus. DILARANG MENGARANG JAWABAN.
+        3. Gunakan bahasa Indonesia baku namun praktis. Sesekali gunakan partikel Bugis-Makassar (misal: ki', iye') agar natural.
+        4. Langsung ke inti jawaban tanpa basa-basi seperti "Berdasarkan referensi...".
 
-        TUGAS UTAMA: 
-        Jawab pertanyaan atau keluhan petani dengan akurat, ringkas, dan solutif HANYA berdasarkan fakta dari [REFERENSI JURNAL] di bawah.
-
-        ATURAN KETAT (SYSTEM INSTRUCTIONS):
-        1. SEMBUNYIKAN IDENTITAS AI (CRITICAL): DILARANG KERAS menyebut diri Anda sebagai AI, model bahasa, atau bot. DILARANG menggunakan kalimat pembuka/penutup template AI seperti "Tentu, saya bisa membantu", "Berikut adalah...", "Menurut referensi yang diberikan...", atau "Berdasarkan teks di atas...". Langsung jawab ke intinya selayaknya manusia yang sedang berbicara tatap muka.
-        2. GAYA BAHASA & LOGAT (NATURAL): Gunakan Bahasa Indonesia yang profesional namun merakyat. Sisipkan sapaan dan partikel lokal Bugis-Makassar dengan natural dan tidak berlebihan (misal: "Tabe' Daeng", "iye'", "ki'", "pale'", "di'"). 
-        3. ANTI-HALUSINASI (STRICT RAG): Jika informasi untuk menjawab pertanyaan TIDAK TERDAPAT di dalam [REFERENSI JURNAL], Anda DILARANG KERAS mengarang jawaban atau menebak-nebak. Cukup katakan persis seperti ini: "Tabe' Daeng, mohon maaf ki' pale', informasi spesifik mengenai hal tersebut kebetulan belum ada di catatan jurnal penyuluhan saya saat ini."
-        4. PENANGANAN SAPAAN PENDEK: Jika input hanya berupa sapaan ("halo", "pagi", "assalamualaikum", "tes"), balas sapaan tersebut dengan sopan dan tanyakan kondisi tanaman padi/jagungnya hari ini. Abaikan referensi jurnal.
-        5. FORMAT JAWABAN (HUMAN-LIKE): Jangan terlalu sering menggunakan list/bullet-points yang kaku. Ubah gaya penjelasan menjadi narasi 2-3 paragraf pendek yang luwes, mengalir, dan memberikan solusi yang bisa langsung dipraktikkan petani.
-
-        [PERTANYAAN PETANI]: 
-        "{query}"
-
-        [REFERENSI JURNAL]:
-        {referensi_teks}
+        [PERTANYAAN PENGGUNA]: "{query}"
+        [REFERENSI JURNAL]: {referensi_teks}
         """
 
         try:
             response = gemini_model.generate_content(prompt)
-            jawaban_ai = response.text if response.parts else "Maaf ki', jawaban diblokir oleh sistem."
+            jawaban_ai = response.text if response.parts else "Respon tidak dapat diproses."
 
-            # Tampilkan Jawaban AI
+            # TAMPILKAN JAWABAN
             st.markdown(f"""
-            <div class="ai-response">
-                <div class="ai-header">
-                    <div class="ai-avatar">👨‍🌾</div>
-                    <p class="ai-name">Penyuluh Pintar AI</p>
+            <div class="response-wrapper">
+                <div class="response-header">
+                    <div class="response-icon">AI</div>
+                    <p class="response-title">Penyuluh Pintar</p>
                 </div>
-                <div class="ai-content">{jawaban_ai}</div>
+                <div class="response-body">{jawaban_ai}</div>
             </div>
             """, unsafe_allow_html=True)
+            
+            # TAMPILKAN REFERENSI
+            st.markdown('<span class="ref-label">Sumber Literatur Terkait</span>', unsafe_allow_html=True)
+            for i in range(len(results['documents'][0])):
+                doc = results['documents'][0][i]
+                meta = results['metadatas'][0][i]
+                st.markdown(f"""
+                <div class="ref-item">
+                    <div class="ref-title">{meta.get('Judul', 'Dokumen Akademis')}</div>
+                    <div class="ref-snippet">{doc}</div>
+                </div>
+                """, unsafe_allow_html=True)
 
         except Exception as e:
-            st.error(f"Gagal memanggil Gemini: {e}")
-
-    # Tampilkan Sumber Referensi
-    st.markdown('<div class="ref-header">📚 Literatur Jurnal yang Ditemukan</div>', unsafe_allow_html=True)
-    
-    for i in range(len(results['documents'][0])):
-        doc = results['documents'][0][i]
-        meta = results['metadatas'][0][i]
-        judul = meta.get('Judul', 'Sumber Jurnal Akademis')
-        
-        st.markdown(f"""
-        <div class="ref-card">
-            <div class="ref-title">
-                <span style="background:#E5E7EB; color:#4B5563; padding:2px 8px; border-radius:4px; font-size:0.7rem; margin-right:6px;">{i+1}</span>
-                {judul}
-            </div>
-            <div class="ref-text">{doc}</div>
-        </div>
-        """, unsafe_allow_html=True)
-
-# FOOTER
-st.markdown("""
-<div class="footer">
-    Dikembangkan untuk <strong>Mata Kuliah Information Retrieval</strong><br>
-    Menggunakan <strong>ChromaDB</strong> & <strong>Google Gemini Flash</strong>
-</div>
-""", unsafe_allow_html=True)
+            st.error("Terjadi kesalahan pada server AI.")
