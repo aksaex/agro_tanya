@@ -353,7 +353,6 @@ st.markdown("""
 <div class="back-btn-container">
     <a href="https://agrotanya.netlify.app/" target="_self" class="back-btn">
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
-        Kembali ke Beranda
     </a>
 </div>
 """, unsafe_allow_html=True)
@@ -363,10 +362,10 @@ st.markdown("""
 <div class="hero-container">
     <div class="hero-badge">
         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20"/><path d="m17 5-5-3-5 3"/><path d="m19 12-7-7-7 7"/><path d="m21 19-9-9-9 9"/></svg>
-        Passage Retrieval QA
+        Information Retrieval
     </div>
     <h1 class="hero-title">AGRO<span>-TANYA</span></h1>
-    <p class="hero-subtitle">Asisten virtual pintar berbasis dokumen penyuluhan resmi untuk budidaya Padi & Jagung di Sulawesi Selatan.</p>
+    <p class="hero-subtitle">Asisten virtual pintar berbasis dokumen penyuluhan resmi untuk budidaya Padi & Jagung di Parepare.</p>
 </div>
 """, unsafe_allow_html=True)
 
