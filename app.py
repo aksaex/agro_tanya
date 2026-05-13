@@ -13,15 +13,16 @@ import os
 # 1. KONFIGURASI HALAMAN
 st.set_page_config(page_title="AGRO-TANYA | AI", page_icon="🌾", layout="centered")
 
-# --- CSS REVISI UNTUK KONSISTENSI DENGAN LANDING PAGE ---
+# --- CSS REVISI: 50% HIJAU TUA & 50% CREAM HANGAT ---
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap');
 
+    /* Background Utama: Putih Hangat / Cream yang ramah mata */
     html, body, [class*="css"] {
         font-family: 'Inter', sans-serif !important;
-        background-color: #FAFAFA !important; /* Warna latar belakang Netlify */
-        color: #1f2937 !important; /* text-gray-800 */
+        background-color: #F9F7F1 !important; /* Warna Cream Hangat */
+        color: #163820 !important; /* Teks Hijau Tua Gelap */
     }
 
     #MainMenu, footer, header { visibility: hidden; }
@@ -40,39 +41,41 @@ st.markdown("""
         display: inline-flex;
         align-items: center;
         gap: 0.5rem;
-        color: #4b5563; /* text-gray-600 */
+        color: #163820; 
         font-size: 0.875rem;
-        font-weight: 500;
+        font-weight: 600;
         text-decoration: none;
         padding: 0.5rem 1rem;
-        background-color: #ffffff;
-        border: 1px solid #e5e7eb;
-        border-radius: 9999px; /* rounded-full */
+        background-color: #EAE6DA; /* Cream lebih gelap untuk tombol */
+        border: 1px solid #D1CBB8;
+        border-radius: 9999px;
         transition: all 0.2s ease;
-        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
     }
     .back-btn:hover {
-        color: #308051; /* agro-600 */
-        border-color: #99d9b2; /* agro-300 */
-        background-color: #f2fbf5; /* agro-50 */
+        background-color: #163820; 
+        color: #F9F7F1;
+        border-color: #163820;
     }
 
-    /* ── HERO ── */
+    /* ── HERO SECTION (50% HIJAU TUA) ── */
     .hero-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
         text-align: center;
         margin-bottom: 2rem;
-        padding: 2.5rem 1.5rem 2rem;
-        background: #ffffff;
+        padding: 3rem 1.5rem;
+        background: #163820; /* Hijau Tua Solid */
         border-radius: 24px;
-        border: 1px solid rgba(0, 0, 0, 0.05);
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+        box-shadow: 0 10px 25px rgba(22, 56, 32, 0.2);
     }
     .hero-badge {
         display: inline-flex;
         align-items: center;
         gap: 0.5rem;
-        background: rgba(67, 160, 106, 0.1); /* agro-500/10 */
-        color: #308051; /* agro-600 */
+        background: rgba(249, 247, 241, 0.15); /* Transparan Putih */
+        color: #F9F7F1; /* Putih Cream */
         font-size: 0.75rem;
         font-weight: 600;
         letter-spacing: 0.5px;
@@ -80,61 +83,64 @@ st.markdown("""
         padding: 0.4rem 1rem;
         border-radius: 9999px;
         margin-bottom: 1.25rem;
-        border: 1px solid rgba(67, 160, 106, 0.2);
+        border: 1px solid rgba(249, 247, 241, 0.3);
     }
     .hero-title {
         font-family: 'Plus Jakarta Sans', sans-serif !important;
         font-size: 2.5rem !important;
         font-weight: 800 !important;
-        color: #111827 !important; /* text-gray-900 */
+        color: #F9F7F1 !important; /* Putih Cream */
         margin: 0 0 0.75rem !important;
         letter-spacing: -0.02em;
         line-height: 1.1;
+        text-align: center;
     }
-    .hero-title span { color: #308051; /* agro-600 */ }
+    .hero-title span { color: #84D996; /* Hijau Terang Accent */ }
+    
+    /* Mengunci subtitle agar selalu di tengah pada Desktop maupun HP */
     .hero-subtitle {
-        color: #6b7280; /* text-gray-500 */
+        color: #C3D6C8 !important; /* Hijau Pudar */
         font-size: 1rem;
         line-height: 1.6;
-        margin: 0;
+        margin: 0 auto !important;
         max-width: 480px;
-        margin-inline: auto;
+        text-align: center !important;
     }
 
-    /* ── FORM ── */
+    /* ── FORM PENCARIAN ── */
     div[data-testid="stForm"] {
-        background: #ffffff;
+        background: #FFFFFF;
         padding: 1rem 1rem 0.75rem;
         border-radius: 20px;
-        border: 1px solid rgba(0, 0, 0, 0.05);
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        border: 1px solid #EAE6DA;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
         margin-bottom: 1.5rem;
     }
     .stTextInput label {
-        display: none !important; /* Sembunyikan label bawaan agar lebih clean */
+        display: none !important;
     }
     .stTextInput > div > div > input {
-        background-color: #f9fafb !important; /* bg-gray-50 */
-        border: 1px solid #e5e7eb !important; /* border-gray-200 */
+        background-color: #F9F7F1 !important;
+        border: 1px solid #D1CBB8 !important;
         border-radius: 12px !important;
         padding: 0.875rem 1.25rem !important;
         font-size: 1rem !important;
-        color: #1f2937 !important;
+        color: #163820 !important;
         transition: all 0.2s ease;
     }
     .stTextInput > div > div > input:focus {
-        border-color: #43a06a !important; /* agro-500 */
-        box-shadow: 0 0 0 4px rgba(67, 160, 106, 0.1) !important;
-        background-color: #ffffff !important;
+        border-color: #163820 !important; 
+        box-shadow: 0 0 0 4px rgba(22, 56, 32, 0.1) !important;
+        background-color: #FFFFFF !important;
     }
     .stTextInput > div > div > input::placeholder {
-        color: #9ca3af !important; /* text-gray-400 */
+        color: #8C998E !important; 
     }
 
-    /* ── TOMBOL KIRIM — IKON SAJA ── */
+    /* ── TOMBOL KIRIM ── */
     .stButton > button {
-        background-color: #308051 !important; /* agro-600 */
-        color: white !important;
+        background-color: #163820 !important; /* Hijau Tua */
+        color: #F9F7F1 !important;
         border: none !important;
         border-radius: 12px !important;
         width: 52px !important;
@@ -148,26 +154,23 @@ st.markdown("""
         margin-top: 0.15rem !important;
         transition: all 0.2s ease;
         float: right;
-        box-shadow: 0 4px 6px -1px rgba(48, 128, 81, 0.3);
+        box-shadow: 0 4px 6px -1px rgba(22, 56, 32, 0.3);
     }
     .stButton > button:hover {
-        background-color: #276643 !important; /* agro-700 */
+        background-color: #245834 !important; /* Hijau Sedikit Terang */
         transform: translateY(-2px);
-        box-shadow: 0 6px 8px -1px rgba(48, 128, 81, 0.4);
-    }
-    .stButton > button:active {
-        transform: translateY(0);
+        box-shadow: 0 6px 8px -1px rgba(22, 56, 32, 0.4);
     }
 
     /* ── RESPONS AI ── */
     .ai-response {
-        background: #ffffff;
+        background: #FFFFFF;
         border-radius: 20px;
         padding: 1.5rem;
-        border: 1px solid rgba(0, 0, 0, 0.05);
-        border-left: 4px solid #308051; /* agro-600 */
+        border: 1px solid #EAE6DA;
+        border-left: 5px solid #163820; /* Garis aksen hijau tua */
         margin-bottom: 2rem;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.02);
     }
     .ai-header {
         display: flex;
@@ -175,11 +178,11 @@ st.markdown("""
         gap: 0.75rem;
         margin-bottom: 1.25rem;
         padding-bottom: 1rem;
-        border-bottom: 1px solid #f3f4f6; /* border-gray-100 */
+        border-bottom: 1px solid #F0EEE4;
     }
     .ai-avatar {
-        background: #e1f6e8; /* agro-100 */
-        color: #308051; /* agro-600 */
+        background: #EAF0EC;
+        color: #163820;
         width: 36px;
         height: 36px;
         display: flex;
@@ -191,13 +194,13 @@ st.markdown("""
     }
     .ai-name {
         font-family: 'Plus Jakarta Sans', sans-serif;
-        font-weight: 700;
-        color: #111827; /* text-gray-900 */
+        font-weight: 800;
+        color: #163820;
         font-size: 1rem;
         margin: 0;
     }
     .ai-content {
-        color: #4b5563; /* text-gray-600 */
+        color: #2D4A36;
         line-height: 1.8;
         font-size: 0.95rem;
     }
@@ -212,8 +215,8 @@ st.markdown("""
     .ref-header {
         font-family: 'Plus Jakarta Sans', sans-serif;
         font-size: 0.875rem;
-        font-weight: 700;
-        color: #308051; /* agro-600 */
+        font-weight: 800;
+        color: #163820;
         text-transform: uppercase;
         letter-spacing: 0.05em;
         margin-bottom: 1rem;
@@ -225,25 +228,25 @@ st.markdown("""
         content: "";
         flex-grow: 1;
         height: 1px;
-        background: #e5e7eb; /* border-gray-200 */
+        background: #D1CBB8;
     }
     .ref-card {
-        background: #ffffff;
+        background: #FFFFFF;
         border-radius: 16px;
         padding: 1.25rem;
         margin-bottom: 1rem;
-        border: 1px solid rgba(0, 0, 0, 0.05);
+        border: 1px solid #EAE6DA;
         transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
     .ref-card:hover {
         transform: translateY(-2px);
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.03);
     }
     .ref-title {
         font-family: 'Plus Jakarta Sans', sans-serif;
         font-size: 0.9rem;
-        font-weight: 700;
-        color: #111827; /* text-gray-900 */
+        font-weight: 800;
+        color: #163820;
         margin-bottom: 0.75rem;
         display: flex;
         align-items: flex-start;
@@ -251,8 +254,8 @@ st.markdown("""
         line-height: 1.4;
     }
     .ref-num {
-        background: #f3f4f6; /* bg-gray-100 */
-        color: #6b7280; /* text-gray-500 */
+        background: #EAF0EC;
+        color: #163820;
         font-size: 0.75rem;
         font-weight: 800;
         padding: 2px 8px;
@@ -263,7 +266,7 @@ st.markdown("""
     .ref-text {
         font-size: 0.875rem;
         line-height: 1.7;
-        color: #6b7280; /* text-gray-500 */
+        color: #4A6B53;
     }
 
     /* ── FOOTER ── */
@@ -271,15 +274,15 @@ st.markdown("""
         text-align: center;
         margin-top: 3rem;
         padding-top: 1.5rem;
-        border-top: 1px solid #e5e7eb;
-        color: #9ca3af;
+        border-top: 1px solid #D1CBB8;
+        color: #8C998E;
         font-size: 0.8rem;
         line-height: 1.6;
     }
-    .footer strong { color: #6b7280; }
+    .footer strong { color: #4A6B53; }
 
     /* ── SPINNER ── */
-    .stSpinner > div > div { border-top-color: #308051 !important; }
+    .stSpinner > div > div { border-top-color: #163820 !important; }
 
     /* ── MOBILE RESPONSIVE ── */
     @media (max-width: 600px) {
@@ -287,14 +290,11 @@ st.markdown("""
             padding: 1.25rem 1rem 2rem !important;
         }
         .hero-container {
-            padding: 2rem 1.25rem 1.5rem;
+            padding: 2.5rem 1.25rem 2rem;
             border-radius: 20px;
         }
         .hero-title {
             font-size: 2rem !important;
-        }
-        .hero-subtitle {
-            font-size: 0.9rem;
         }
         div[data-testid="stForm"] {
             padding: 0.75rem !important;
@@ -358,7 +358,7 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# Hero Section
+# Hero Section Terpusat (Flexbox)
 st.markdown("""
 <div class="hero-container">
     <div class="hero-badge">
@@ -371,11 +371,11 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 with st.form(key='chat_form'):
-    col1, col2 = st.columns([6, 1])
+    col1, col2 = st.columns([5, 1])
     with col1:
         query = st.text_input(
             "Pertanyaan",
-            placeholder="Tanya soal penyakit padi atau pemupukan jagung...",
+            placeholder="Halo petani parepare. Sebaiknya kita mulai dari mana?",
             label_visibility="collapsed",
         )
     with col2:
