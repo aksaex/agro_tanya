@@ -311,7 +311,7 @@ st.markdown("""
 try:
     GEMINI_API_KEY = st.secrets["GEMINI_API_KEY"]
     genai.configure(api_key=GEMINI_API_KEY)
-    gemini_model = genai.GenerativeModel('gemini-2.5-flash')
+    gemini_model = genai.GenerativeModel('gemini-1.5-flash')
 except Exception as e:
     st.error("Kunci API Gemini belum dipasang di Secrets Streamlit.")
     st.stop()
@@ -341,7 +341,7 @@ def load_system():
         st.stop()
 
     collection = client.get_collection(name=target_collection)
-    model = SentenceTransformer('paraphrase-multilingual-MiniLM-L12-v2')
+    model = SentenceTransformer('BAAI/bge-m3')
     return model, collection
 
 model, collection = load_system()
