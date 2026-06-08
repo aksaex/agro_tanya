@@ -1,7 +1,7 @@
-# --- HACK WAJIB UNTUK STREAMLIT CLOUD (MATIKAN SAAT DI LOCALHOST) ---
-# __import__('pysqlite3')
-# import sys
-# sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
+# --- HACK WAJIB UNTUK STREAMLIT CLOUD ---
+__import__('pysqlite3')
+import sys
+sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
 # ----------------------------------------
 
 import streamlit as st
