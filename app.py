@@ -1,7 +1,7 @@
-# --- HACK WAJIB UNTUK STREAMLIT CLOUD ---
-__import__('pysqlite3')
-import sys
-sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
+# --- HACK WAJIB UNTUK STREAMLIT CLOUD (MATIKAN SAAT DI LOCALHOST) ---
+# __import__('pysqlite3')
+# import sys
+# sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
 # ----------------------------------------
 
 import streamlit as st
@@ -341,7 +341,7 @@ def load_system():
         st.stop()
 
     collection = client.get_collection(name=target_collection)
-    model = SentenceTransformer('paraphrase-multilingual-MiniLM-L12-v2')
+    model = SentenceTransformer('BAAI/bge-m3')
     return model, collection
 
 model, collection = load_system()
