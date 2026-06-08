@@ -341,7 +341,7 @@ def load_system():
         st.stop()
 
     collection = client.get_collection(name=target_collection)
-    model = SentenceTransformer('BAAI/bge-m3')
+    model = SentenceTransformer('paraphrase-multilingual-MiniLM-L12-v2')
     return model, collection
 
 model, collection = load_system()
