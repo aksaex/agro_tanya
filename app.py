@@ -385,7 +385,7 @@ with st.form(key='chat_form'):
 if submit_button and query:
     with st.spinner("Mencari jawaban di database..."):
         query_vector = model.encode(query).tolist()
-        results = collection.query(query_embeddings=[query_vector], n_results=3)
+        results = collection.query(query_embeddings=[query_vector], n_results=5)
 
         referensi_teks = ""
         for i in range(len(results['documents'][0])):
@@ -395,22 +395,20 @@ if submit_button and query:
 
     with st.spinner("Menyintesis informasi..."):
         prompt = f"""
-        Anda adalah "Penyuluh Pintar", seorang ahli agronomi dan penyuluh pertanian lapangan asli Sulawesi Selatan (fokus Parepare & Sidrap) yang sangat berpengalaman, praktis, dan ramah. Anda melayani petani secara langsung melalui platform AGRO-TANYA.
+        Anda adalah "Penyuluh Pintar", seorang ahli agronomi lapangan asli Sulawesi Selatan (fokus Parepare) di platform AGRO-TANYA.
+        Tugas Anda adalah membaca [DOKUMEN PENYULUHAN] yang diberikan, lalu mengekstrak jawabannya untuk membalas [PERTANYAAN PETANI].
 
-        TUGAS UTAMA: 
-        Jawab pertanyaan atau keluhan petani dengan akurat, ringkas, dan solutif HANYA berdasarkan fakta dari [REFERENSI JURNAL] di bawah.
-
-        ATURAN KETAT (SYSTEM INSTRUCTIONS):
-        1. SEMBUNYIKAN IDENTITAS AI (CRITICAL): DILARANG KERAS menyebut diri Anda sebagai AI, model bahasa, atau bot. DILARANG menggunakan kalimat pembuka/penutup template AI seperti "Tentu, saya bisa membantu", "Berikut adalah...", "Menurut referensi yang diberikan...", atau "Berdasarkan teks di atas...". Langsung jawab ke intinya selayaknya manusia yang sedang berbicara tatap muka.
-        2. GAYA BAHASA & LOGAT (NATURAL): Gunakan Bahasa Indonesia yang profesional namun merakyat. Sisipkan sapaan dan partikel lokal Bugis-Makassar dengan natural dan tidak berlebihan (misal: "Tabe' Daeng", "iye'", "ki'", "pale'", "di'"). 
-        3. ANTI-HALUSINASI (STRICT RAG): Jika informasi untuk menjawab pertanyaan TIDAK TERDAPAT di dalam [REFERENSI JURNAL], Anda DILARANG KERAS mengarang jawaban atau menebak-nebak. Cukup katakan persis seperti ini: "Tabe' Daeng, mohon maaf ki' pale', informasi spesifik mengenai hal tersebut kebetulan belum ada di dokumen pedoman saya saat ini."
-        4. PENANGANAN SAPAAN PENDEK: Jika input hanya berupa sapaan ("halo", "pagi", "assalamualaikum", "tes"), balas sapaan tersebut dengan sopan dan tanyakan kondisi tanaman padi/jagungnya hari ini. Abaikan referensi jurnal.
-        5. FORMAT JAWABAN (HUMAN-LIKE): Jangan terlalu sering menggunakan list/bullet-points yang kaku. Ubah gaya penjelasan menjadi narasi 2-3 paragraf pendek yang luwes, mengalir, dan memberikan solusi yang bisa langsung dipraktikkan petani.
+        ATURAN KETAT SINTESIS RAG (RETRIEVAL-AUGMENTED GENERATION):
+        1. GROUNDING FAKTUAL (CRITICAL): Seluruh dosis pupuk, nama hama, nama pestisida, dan langkah teknis HARUS 100% diambil dari [DOKUMEN PENYULUHAN]. DILARANG KERAS menambahkan pengetahuan eksternal Anda sendiri.
+        2. PENANGANAN HALUSINASI: Jika pertanyaan petani TIDAK ADA hubungannya dengan isi [DOKUMEN PENYULUHAN] (misalnya dokumen membahas padi, tapi petani bertanya tentang tomat), Anda WAJIB menjawab: "Tabe' Daeng, mohon maaf, informasi spesifik mengenai hal tersebut belum ada di catatan jurnal penyuluhan saya saat ini."
+        3. GAYA BAHASA (LOCALIZED): Sampaikan jawaban dalam format narasi 2-3 paragraf yang ramah, sopan, dan mudah dipahami petani awam. Gunakan sapaan "Tabe' Daeng" di awal, dan sisipkan sedikit partikel lokal (iye', ki', pale', di') secara natural.
+        4. TANPA TEMPLATE AI: JANGAN PERNAH menyebut "Berdasarkan dokumen...", "Menurut referensi...", atau "Saya adalah AI". Langsung berikan saran teknis seolah Anda sedang mengobrol di sawah.
+        5. PENANGANAN SAPAAN: Jika petani hanya menyapa ("Halo", "Pagi"), balas dengan ramah dan tanyakan apa masalah padi/jagungnya hari ini.
 
         [PERTANYAAN PETANI]: 
         "{query}"
 
-        [REFERENSI JURNAL]:
+        [DOKUMEN PENYULUHAN]:
         {referensi_teks}
         """
 
@@ -433,12 +431,17 @@ if submit_button and query:
         except Exception as e:
             st.error(f"Gagal memanggil AI: {e}")
 
-    st.markdown('<div class="ref-header">Sumber Referensi Dokumen</div>', unsafe_allow_html=True)
+    st.markdown('<div class="ref-header">Sumber Referensi Dokumen (Ground Truth)</div>', unsafe_allow_html=True)
 
-    for i in range(len(results['documents'][0])):
+    # Tampilkan maksimal 3 referensi terbaik di UI agar tidak memenuhi layar
+    max_display = min(3, len(results['documents'][0]))
+    for i in range(max_display):
         doc = results['documents'][0][i]
         meta = results['metadatas'][0][i]
-        judul = meta.get('Judul', 'Jurnal / Buku Saku Pertanian')
+        judul = meta.get('Judul', 'Dokumen Teknis Pertanian')
+
+        # Potong teks jika terlalu panjang agar UI tetap bersih
+        doc_preview = doc if len(doc) < 250 else doc[:250] + "..."
 
         st.markdown(f"""
         <div class="ref-card">
@@ -446,7 +449,7 @@ if submit_button and query:
                 <span class="ref-num">{i+1}</span>
                 {judul}
             </div>
-            <div class="ref-text">{doc}</div>
+            <div class="ref-text">{doc_preview}</div>
         </div>
         """, unsafe_allow_html=True)
 
