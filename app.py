@@ -413,6 +413,7 @@ if submit_button and query:
         """
 
         try:
+            # 1. Mencoba memanggil Gemini
             response = gemini_model.generate_content(prompt)
             jawaban_ai = response.text if response.parts else "Maaf ki', jawaban tidak dapat ditampilkan."
 
@@ -429,10 +430,29 @@ if submit_button and query:
             """, unsafe_allow_html=True)
 
         except Exception as e:
-            st.error(f"Gagal memanggil AI: {e}")
-
-    st.markdown('<div class="ref-header">Sumber Referensi Dokumen (Ground Truth)</div>', unsafe_allow_html=True)
-
+            # 2. PENANGGULANGAN ERROR (ERROR HANDLING)
+            error_msg = str(e)
+            
+            st.markdown("""
+            <div style="background-color: #FFF4E5; border-left: 5px solid #F59E0B; padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem;">
+                <h4 style="color: #B45309; margin-top: 0; font-family: 'Plus Jakarta Sans', sans-serif;">⏳ Sistem Sedang Sibuk</h4>
+            """, unsafe_allow_html=True)
+            
+            # Jika Error karena Kuota / Limit (429)
+            if "429" in error_msg or "Quota exceeded" in error_msg:
+                st.markdown("""
+                <p style="color: #92400E; margin-bottom: 0;">Tabe' Daeng, Penyuluh Pintar sedang melayani banyak petani saat ini. <b>Mohon tunggu sekitar 30 detik</b> sebelum bertanya kembali, iye'.<br><br>
+                💡 <i>Sementara menunggu, Daeng bisa membaca langsung kutipan dokumen aslinya di bawah ini 👇</i></p>
+                """, unsafe_allow_html=True)
+            else:
+                # Jika Error karena hal lain (misal koneksi internet putus)
+                st.markdown(f"""
+                <p style="color: #92400E; margin-bottom: 0;">Maaf ki' Daeng, terjadi gangguan koneksi ke pusat AI. Mohon segarkan (refresh) halaman ini.<br>
+                <code style="background: rgba(0,0,0,0.05); padding: 2px 4px; border-radius: 4px; font-size: 12px;">Log: {error_msg[:100]}...</code></p>
+                """, unsafe_allow_html=True)
+            
+            st.markdown("</div>", unsafe_allow_html=True)
+            
     # Tampilkan maksimal 3 referensi terbaik di UI agar tidak memenuhi layar
     max_display = min(3, len(results['documents'][0]))
     for i in range(max_display):
